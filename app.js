@@ -1,80 +1,145 @@
-function getComputerChoice() {
-    let rnd = Math.floor(Math.random() * 3);
-    if (rnd === 0) return "Rock";
-    else if (rnd === 1) return "Paper";
-    else return "Scissors";
-}
+const game = () => {
+    let pScore = 0;
+    let cScore = 0;
 
-function playRound(playerSelection, computerSelection) {
-    if (playerSelection === "ROCK") {
-        if (computerSelection === "Paper") {
-            console.log("You Lose! Paper beats Rock")
-            return 0;
-        } else if (computerSelection === "Scissors") {
-            console.log("You Win! Rock beats Scissors")
-            return 2;
-        } else {
-            console.log("Its a Draw!")
-            return 1;
-        }
-    }
-    else if (playerSelection === "PAPER") {
-        if (computerSelection === "Paper"){
-            console.log("Its a Draw!");
-            return 1;
-        } else if (computerSelection === "Scissors") {
-            console.log("You Lose! Scissors beats Paper");
-            return 0;
-            
-        } else {
-            console.log("You Win! Paper beats Rock");
-            return 2;
-        }
-    }
-    else {
-        if (computerSelection === "Paper") {
-            console.log("You Win! Scissors beats Paper");
-            return 2;
-        } else if (computerSelection === "Scissors") {
-            console.log("Its a Draw!");
-            return 1;
-        } else {
-            console.log("You Lose! Rock beats Scissors")
-            return 0;
-        }
-    }
-}
+    // Starts the game
+    const startGame = () => {
+        const playBtn = document.querySelector('.intro button');
+        const introScreen = document.querySelector('.intro')
+        const matchScreen = document.querySelector('.match')
 
-function game() {
-    let playercount = 0;
-    computercount = 0;
-    result = 0;
-    for (let i = 0; i < 5; i++) {
-        let playerSelection = prompt("Let's start a new round, what hand do you want to play ? ");
-        let player = playerSelection.toUpperCase();
-        if (player !== "ROCK" && player !== "SCISSORS" && player !== "PAPER") {
-            console.log("Bad kitty");
+        playBtn.addEventListener('click', () => {
+            introScreen.classList.add('fadeOut');
+            matchScreen.classList.add('fadeIn');
+        });
+    };
+
+    // Plays the match
+    const playMatch = () => {
+        const options = document.querySelectorAll('.options button');
+        const playerHand = document.querySelector('.player-hand');
+        const computerHand = document.querySelector('.computer-hand');
+        const hands = document.querySelectorAll('.hands img');
+
+        hands.forEach(hand => {
+            hand.addEventListener('animationend', function() {
+                this.style.animation = "";
+            });
+        });
+        // Computer Options
+        const computerOptions = ['rock', 'paper', 'scissors'];
+
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Computer Choice
+                const computerNumber = Math.floor(Math.random() * 3);
+                const computerChoice = computerOptions[computerNumber];
+
+                setTimeout(() => {
+                    // Now we compare hands
+                    compareHands(this.textContent, computerChoice);
+                    // Update Images
+                    playerHand.src = `./img/${this.textContent}.png`;
+                    computerHand.src = `./img/${computerChoice}.png`;
+                }, 2000);
+
+                playerHand.style.animation = "shakePlayer 2s ease";
+                computerHand.style.animation = "shakeComputer 2s ease";
+            });
+        });
+    };
+
+    const compareHands = (playerChoice, computerChoice) => {
+        // Update text
+        const winner = document.querySelector('.winner')
+        // Check for a potential tie
+        if (playerChoice === computerChoice) {
+            winner.textContent = "it's a tie !!!";
             return;
         }
-        let computer = getComputerChoice();
-        result = playRound(player, computer);
-        playercount += result;
-        computercount += 2 - result;
-    }
-    while (playercount === computercount) {
-        let playerSelection = prompt("I see you are still tied huh. Let's start a new round, what hand do you want to play ? ");
-        let player = playerSelection.toUpperCase();
-        if (player !== "ROCK" && player !== "SCISSORS" && player !== "PAPER") {
-            console.log("Bad kitty");
+        // Check for Rock
+        if (playerChoice === 'rock') {
+            if (computerChoice === 'scissors') {
+                winner.textContent = "The player wins !!!";
+                pScore++
+                updateScore();
+                checkWinner();
+                return;
+            } else {
+                winner.textContent = "The computer wins !!!";
+                cScore++
+                updateScore();
+                checkWinner();
+                return;
+            }
+        };
+        // Check for Paper
+        if (playerChoice === 'paper') {
+            if (computerChoice === 'rock') {
+                winner.textContent = "The player wins !!!";
+                pScore++
+                updateScore();
+                checkWinner();
+                return;
+            } else {
+                winner.textContent = "The computer wins !!!";
+                cScore++
+                updateScore();
+                checkWinner();
+                return;
+            }
+        };
+        // Else it's scissors
+        if (computerChoice === 'paper') {
+            winner.textContent = "The player wins !!!";
+            pScore++
+            updateScore();
+            checkWinner();
+            return;
+        } else {
+            winner.textContent = "The computer wins !!!";
+            cScore++
+            updateScore();
+            checkWinner();
             return;
         }
-        let computer = getComputerChoice();
-        result = playRound(player, computer);
-        playercount = playercount + result;
-        computercount = computercount + 2 - result;
     }
-    console.log(playercount);
-    console.log(computercount);
-    if (playercount > computercount) console.log("You won! I see the computer don't got nothing on you huh.")
-    else console.log("You lost... Better luck next time ^^.")
-}
+
+    const updateScore = () => {
+        const playerScore = document.querySelector('.player-score p');
+        const computerScore = document.querySelector('.computer-score p');
+        playerScore.textContent = pScore;
+        computerScore.textContent = cScore;
+    }
+
+    const checkWinner = () => {
+        if (pScore === 1) {
+            const result = document.querySelector('.intro h1');
+            result.textContent = "Looks like you won this match, congratualions. Do you wish to play again ?"
+            endGame();
+        }
+        if (cScore === 1) {
+            const result = document.querySelector('.intro h1');
+            result.textContent = "Looks like you lost this match, that's too bad.... Do you wish to play again ?"
+            endGame();
+        }
+    }
+
+    const endGame = () => {
+        console.log('bite');
+        const introScreen = document.querySelector('.intro')
+        const matchScreen = document.querySelector('.match')
+        introScreen.classList.remove('fadeOut');
+        matchScreen.classList.remove('fadeIn');
+        introScreen.classList.add('fadeIn');
+        matchScreen.classList.add('fadeOut');
+        game();
+    }
+
+    // Call all the inner function
+    startGame();
+    playMatch();
+};
+
+game();
+
